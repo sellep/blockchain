@@ -29,6 +29,18 @@ class Chain
 
 		return true;
 	}
+
+	static sync(chainA, chainB)
+	{
+		if (chainA.blocks.length > chainB.blocks.length)
+		{
+			chainB.blocks = chainA.blocks;
+		}
+		else if (chainA.blocks.length < chainB.blocks.length)
+		{
+			chainA.blocks = chainB.blocks;
+		}
+	}
 }
 
 module.exports = Chain;

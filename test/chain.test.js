@@ -1,5 +1,5 @@
-const Block = require('./block');
-const Chain = require('./chain');
+const Block = require('../block');
+const Chain = require('../chain');
 
 describe('Chain', () =>
 {
@@ -55,4 +55,38 @@ describe('Chain', () =>
 
 		expect(chain.valid()).toBe(false);
 	});
+
+	it('no chain sync if chains are from equal length', () =>
+	{
+		const chainB = new Chain();
+
+		chain.add('Chain A');
+		chainB.add('Chain B');
+
+		Chain.sync(chain, chainB);
+
+		expect(chain.blocks).not.toEqual(chainB.blocks);
+	});
+
+	it('chain sync if chain a is longer than chain b', () =>
+	{
+                const chainB = new Chain();
+
+                chain.add('Chain A');
+
+		Chain.sync(chain, chainB);
+
+                expect(chainB.blocks).toEqual(chain.blocks);
+        });
+
+	it('chain sync if chain b is longer than chain a', () =>
+        {
+                const chainB = new Chain();
+
+                chainB.add('Chain B');
+
+                Chain.sync(chain, chainB);
+
+                expect(chain.blocks).toEqual(chainB.blocks);
+        });
 });
