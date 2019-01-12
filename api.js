@@ -1,11 +1,13 @@
 const express = require('express');
 const parser = require('body-parser');
-const Chain = require('./chain');
+const Blockchain = require('./blockchain');
+const P2pServer = require('./p2p');
 
-const HTTP_PORT = 8081;
+const HTTP_PORT = process.env.HTTP_PORT || 8081;
 
 const app = express();
-const chain = new Chain();
+const chain = new Blockchain();
+const p2p = new P2pServer(chain);
 
 app.use(parser.json());
 
@@ -19,6 +21,8 @@ app.post('/mine', (req, res) =>
 {
 	chain.add(req.body.data);
 
+	p2p.broadcast();
+
 	res.redirect('/blocks');
 });
 
@@ -27,3 +31,5 @@ app.listen(HTTP_PORT, () =>
 	console.log(`Listening on port ${HTTP_PORT}`);
 
 });
+
+p2p.listen();

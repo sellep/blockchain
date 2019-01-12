@@ -5,7 +5,8 @@
   "main": "api.js",
   "scripts": {
     "test": "jest --watchAll",
-    "start": "nodemon ."
+    "start": "node .",
+    "dev": "nodemon ."
   },
   "keywords": [],
   "author": "",
@@ -17,6 +18,7 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "crypto-js": "^3.1.9-1",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "ws": "^6.1.2"
   }
 }

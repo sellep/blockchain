@@ -9,12 +9,12 @@ class Block
 		this.prevHash = prevHash;
 		this.data = data;
 
-		this.hash = this.compute();
+		this.hash = Block.compute(this);
 	}
 
-	compute()
+	static compute(block)
 	{
-		return sha256(`${this.timestamp}${this.prevHash}${this.data}`).toString();
+		return sha256(`${block.timestamp}${block.prevHash}${block.data}`).toString();
 	}
 
 	static genesis()
