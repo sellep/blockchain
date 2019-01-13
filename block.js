@@ -1,4 +1,4 @@
-const sha256 = require('crypto-js/sha256')
+const Utils = require('./utils');
 const { DIFFICULTY, MINE_RATE } = require('./config');
 require('./string');
 
@@ -42,7 +42,7 @@ class Block
 
 	static hash(timestamp, prevHash, data, nonce, difficulty)
 	{
-		return sha256(`${timestamp}${prevHash}${data}${nonce}${difficulty}`).toString();
+		return Utils.hash(`${timestamp}${prevHash}${data}${nonce}${difficulty}`);
 	}
 
 	static increment(nonce)

@@ -19,7 +19,7 @@ describe('Transaction', () =>
 		expect(out.address).toEqual(wallet.publicKey);
 	});
 
-	it('outputs updated senders wallet balance when creating transaction', () =>
+	it('outputs updated senders balance when creating transaction', () =>
 	{
 		const out = transaction.output.find(o => o.address === wallet.publicKey);
 		expect(out.amount).toEqual(wallet.balance - amount);
@@ -39,5 +39,22 @@ describe('Transaction', () =>
 	it('check amount when creating transaction', () =>
 	{
 		expect(Transaction.create(wallet, recipient, -10)).toBeUndefined();
+	});
+
+	it('inputs the senders balance', () =>
+	{
+		expect(transaction.input.amount).toEqual(wallet.balance);
+	});
+
+	it('verifies a valid signature', () =>
+	{
+		expect(Transaction.verify(transaction)).toBe(true);
+	});
+
+	it('verifies an invalid signature', () =>
+	{
+		transaction.output[0].amount = 50000;
+
+		expect(Transaction.verify(transaction)).toBe(false);
 	});
 });

@@ -40,7 +40,25 @@ class Transaction
 			}
 		]);
 
+		Transaction.sign(transaction, sender);
+
 		return transaction;
+	}
+
+	static sign(transaction, sender)
+	{
+		transaction.input =
+		{
+			timestamp: Date.now(),
+			amount: sender.balance,
+			address: sender.publicKey,
+			signature: sender.sign(Utils.hash(JSON.stringify(transaction.output)))
+		};
+	}
+
+	static verify(transaction)
+	{
+		return Utils.verify(transaction.input.address, transaction.input.signature, Utils.hash(JSON.stringify(transaction.output)));
 	}
 }
 
