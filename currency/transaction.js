@@ -1,0 +1,8 @@
+
+class Transaction
+{
+	constructor(balance)
+	{
+
+	}
+}

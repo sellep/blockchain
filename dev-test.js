@@ -1,8 +1,6 @@
-const Blockchain = require('./blockchain');
+const Utils = require('./utils');
+const Wallet = require('./currency/wallet');
 
-const chain = new Blockchain();
+console.log(Utils.genKeys());
 
-for (let i = 0; i < 100; i++)
-{
-	console.log(chain.add(`Block ${i}`));
-}
+console.log(new Wallet());
