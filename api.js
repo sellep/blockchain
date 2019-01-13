@@ -2,13 +2,14 @@ const express = require('express');
 const parser = require('body-parser');
 const Blockchain = require('./blockchain');
 const PeerServer = require('./p2p');
+const TransactionPool = require('./currency/pool');
 
 const HTTP_PORT = process.env.HTTP_PORT || 8081;
 
 class ApiServer
 {
 
-	constructor(chain, p2p)
+	constructor(chain, p2p, pool)
 	{
 		this.app = express();
 
@@ -19,6 +20,10 @@ class ApiServer
        	 		res.json(chain.blocks);
 		});
 
+		this.app.get('/transactions', (req, res) =>
+		{
+			res.json(pool.transactions);
+		});
 
 		this.app.post('/mine', (req, res) =>
 		{

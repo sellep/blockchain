@@ -1,6 +1,8 @@
 const WebSocket = require('ws');
 const Block = require('./block');
 const Blockchain = require('./blockchain');
+const Wallet = require('./currency/wallet');
+const TransactionPool = require('./currency/pool');
 
 const P2P_PORT = process.env.P2P_PORT || 5001;
 const peers = process.env.PEERS ? process.env.PEERS.split(',') : [];
@@ -8,9 +10,11 @@ const peers = process.env.PEERS ? process.env.PEERS.split(',') : [];
 class PeerServer
 {
 
-	constructor(chain)
+	constructor(chain, pool, wallet)
 	{
 		this.chain = chain;
+		this.pool = pool;
+		this.wallet = wallet;
 		this.sockets = [];
 	}
 
