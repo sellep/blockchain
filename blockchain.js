@@ -10,18 +10,18 @@ class Blockchain
 
 	add(data)
 	{
-		this.blocks.push(Block.chain(this.blocks[this.blocks.length - 1], data));
+		this.blocks.push(Block.mine(this.blocks[this.blocks.length - 1], data));
 	}
 
 	static validateBlocks(blocks)
 	{
-		for (let i = 0; i < blocks.length; i++)
-		{
-			if (blocks[i].hash !== Block.compute(blocks[i]))
-				return false;
+		if (blocks[0].hash !== Block.hash(blocks[0].timestamp, blocks[0].prevHash, blocks[0].data, blocks[0].nonce))
+			return false;
 
-			if (i == 0)
-				continue;
+		for (let i = 1; i < blocks.length; i++)
+		{
+			if (blocks[i].hash !== Block.hash(blocks[i].timestamp, blocks[i - 1].hash, blocks[i].data, blocks[i].nonce))
+				return false;
 
 			if (blocks[i - 1].hash !== blocks[i].prevHash)
 				return false;

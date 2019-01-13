@@ -1,4 +1,5 @@
 const Block = require('../block');
+const { DIFFICULTY } = require('../config');
 
 describe('Block', () =>
 {
@@ -8,8 +9,7 @@ describe('Block', () =>
 	{
 		data = 'block data';
 		genesis = Block.genesis();
-		block = Block.chain(genesis, data);
-
+		block = Block.mine(genesis, data);
 	});
 
 	it('sets the `data` to match the blocks data', () =>
@@ -25,5 +25,10 @@ describe('Block', () =>
 	it('sets the `timestamp` not to be less than the previous block', () =>
 	{
 		expect(block.timestamp).not.toBeLessThan(genesis.timestamp);
+	});
+
+	it('generates a hash, which fits the difficulty', () =>
+	{
+		expect(block.hash.substr(0, DIFFICULTY)).toEqual('0'.repeat(DIFFICULTY));
 	});
 });
