@@ -9,6 +9,25 @@ class Transaction
 		this.output = [];
 	}
 
+	update(sender, recipient, amount)
+	{
+		const out = this.output.find(o => o.address === sender.publicKey);
+
+		if (amount > out.amount)
+		{
+			console.log('insufficient amount');
+			return;
+		}
+
+		out.amount -= amount;
+
+		this.output.push({ amount, address: recipient});
+
+		Transaction.sign(this, sender);
+
+		return this;
+	}
+
 	static create(sender, recipient, amount)
 	{
 		let transaction;
