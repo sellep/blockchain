@@ -31,4 +31,14 @@ describe('Block', () =>
 	{
 		expect(block.hash.substr(0, DIFFICULTY)).toEqual('0'.repeat(DIFFICULTY));
 	});
+
+	it('decrements difficulty when slowly mined', () =>
+	{
+		expect(Block.difficulty(block, block.timestamp + 360000)).toBe(block.difficulty - 1);
+	});
+
+	it('increments difficulty when fast mined', () =>
+	{
+		expect(Block.difficulty(block, block.timestamp + 1)).toBe(block.difficulty + 1);
+	});
 });

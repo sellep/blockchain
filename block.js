@@ -1,32 +1,32 @@
 const sha256 = require('crypto-js/sha256')
-const { DIFFICULTY } = require('./config');
+const { DIFFICULTY, MINE_RATE } = require('./config');
 require('./string');
 
 class Block
 {
 
-	constructor(timestamp, hash, prevHash, data, nonce)
+	constructor(timestamp, hash, prevHash, data, nonce, difficulty)
 	{
 		this.timestamp = timestamp;
 		this.hash = hash;
 		this.prevHash = prevHash;
 		this.data = data;
 		this.nonce = nonce;
+		this.difficulty = difficulty;
 	}
 
 	static mine(prevBlock, data)
 	{
-		let timestamp, nonce = '0', hash;
-
-		const sub = '0'.repeat(DIFFICULTY);
+		let timestamp, nonce = '0', hash, { difficulty } = prevBlock;
 
 		while (true)
 		{
 			timestamp = Date.now();
-			hash = Block.hash(timestamp, prevBlock.hash, data, nonce);
+			difficulty = Block.difficulty(prevBlock, timestamp);
+			hash = Block.hash(timestamp, prevBlock.hash, data, nonce, difficulty);
 
-			if (hash.substr(0, DIFFICULTY) === sub)
-				return new Block(timestamp, hash, prevBlock.hash, data, nonce);
+			if (hash.substr(0, difficulty) === '0'.repeat(difficulty))
+				return new Block(timestamp, hash, prevBlock.hash, data, nonce, difficulty);
 
 			nonce = Block.increment(nonce);
 		}
@@ -34,17 +34,15 @@ class Block
 
 	static genesis()
 	{
-		const timestamp = Date.now();
-		const prevHash = '';
 		const data = 'Genesis block';
-		const nonce = '';
+		const prev = { timestamp: 0, hash: '', difficulty: DIFFICULTY };
 
-		return new this(timestamp, Block.hash(timestamp, prevHash, data, nonce), prevHash, data, nonce);
+		return Block.mine(prev, data);
 	}
 
-	static hash(timestamp, prevHash, data, nonce)
+	static hash(timestamp, prevHash, data, nonce, difficulty)
 	{
-		return sha256(`${timestamp}${prevHash}${data}${nonce}`).toString();
+		return sha256(`${timestamp}${prevHash}${data}${nonce}${difficulty}`).toString();
 	}
 
 	static increment(nonce)
@@ -66,6 +64,17 @@ class Block
 		}
 
 		return chars[0] + nonce;
+	}
+
+	static difficulty(prevBlock, timestamp)
+	{
+		const { difficulty } = prevBlock;
+
+		return prevBlock.timestamp + MINE_RATE > timestamp
+			? difficulty + 1
+			: difficulty > 1
+				? difficulty - 1
+				: difficulty;
 	}
 }
 
