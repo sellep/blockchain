@@ -29,14 +29,16 @@ class ApiServer
         {
             chain.add(req.body.data);
 
-            p2p.broadcast();
+            p2p.broadcastChain();
 
             res.redirect('/blocks');
         });
 
         this.app.post('/transact', (req, res) =>
         {
-            wallet.createTransaction(req.body.recipient, req.body.amount, pool);
+            const transaction = wallet.createTransaction(req.body.recipient, req.body.amount, pool);
+
+            p2p.broadcastTransaction(transaction);
 
             res.redirect('/transactions');
         });
