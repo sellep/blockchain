@@ -10,7 +10,7 @@ const pool = new TransactionPool();
 
 const chain = new Blockchain();
 const p2p = new PeerServer(chain, pool, wallet);
-const api = new ApiServer(chain, p2p, pool);
+const api = new ApiServer(chain, p2p, pool, wallet);
 
 p2p.start();
 api.start();

@@ -9,39 +9,46 @@ const HTTP_PORT = process.env.HTTP_PORT || 8081;
 class ApiServer
 {
 
-	constructor(chain, p2p, pool)
-	{
-		this.app = express();
+    constructor(chain, p2p, pool, wallet)
+    {
+        this.app = express();
 
-		this.app.use(parser.json());
+        this.app.use(parser.json());
 
-		this.app.get('/blocks', (req, res) =>
-		{
-       	 		res.json(chain.blocks);
-		});
+        this.app.get('/blocks', (req, res) =>
+        {
+            res.json(chain.blocks);
+        });
 
-		this.app.get('/transactions', (req, res) =>
-		{
-			res.json(pool.transactions);
-		});
+        this.app.get('/transactions', (req, res) =>
+        {
+            res.json(pool.transactions);
+        });
 
-		this.app.post('/mine', (req, res) =>
-		{
-        		chain.add(req.body.data);
+        this.app.post('/mine', (req, res) =>
+        {
+            chain.add(req.body.data);
 
-        		p2p.broadcast();
+            p2p.broadcast();
 
-        		res.redirect('/blocks');
-		});
-	}
+            res.redirect('/blocks');
+        });
 
-	start()
-	{
-		this.app.listen(HTTP_PORT, () =>
-		{
-        		console.log(`[Api] listening on port ${HTTP_PORT}`);
-		});
-	}
+        this.app.post('/transact', (req, res) =>
+        {
+            wallet.createTransaction(req.body.recipient, req.body.amount, pool);
+
+            res.redirect('/transactions');
+        });
+    }
+
+    start()
+    {
+        this.app.listen(HTTP_PORT, () =>
+        {
+            console.log(`[Api] listening on port ${HTTP_PORT}`);
+        });
+    }
 }
 
 module.exports = ApiServer;
