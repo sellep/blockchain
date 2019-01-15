@@ -8,7 +8,7 @@ class TransactionPool
         this.transactions = [];
     }
 
-    updateOrAdd(transaction)
+    add(transaction)
     {
         const idx = this.transactions.findIndex(t => t.id === transaction.id);
 
@@ -20,6 +20,11 @@ class TransactionPool
         {
             this.transactions.push(transaction);
         }
+    }
+
+    clear()
+    {
+        this.transactions = [];
     }
 
     find(inputAddress)

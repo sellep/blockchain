@@ -1,8 +1,11 @@
 const express = require('express');
 const parser = require('body-parser');
-const Blockchain = require('./blockchain');
+const Blockchain = require('./chain/blockchain');
 const PeerServer = require('./p2p');
+const Miner = require('./miner');
+const Wallet = require('./currency/wallet');
 const TransactionPool = require('./currency/pool');
+require('./extensions');
 
 const HTTP_PORT = process.env.HTTP_PORT || 8081;
 
@@ -15,6 +18,11 @@ class ApiServer
 
         this.app.use(parser.json());
 
+        this.app.get('/wallet', (req, res) =>
+        {
+            res.json({ creation: new Date(wallet.timestamp), address: wallet.publicKey, balance: Wallet.balance(wallet, chain) });
+        });
+
         this.app.get('/blocks', (req, res) =>
         {
             res.json(chain.blocks);
@@ -23,6 +31,15 @@ class ApiServer
         this.app.get('/transactions', (req, res) =>
         {
             res.json(pool.transactions);
+        });
+
+        this.app.get('/mine-transactions', (req, res) =>
+        {
+            const block = Miner.mine(p2p, chain, pool, wallet);
+
+            console.log('[API] new block added');
+
+            res.redirect('/blocks');
         });
 
         this.app.post('/mine', (req, res) =>

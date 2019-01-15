@@ -1,4 +1,4 @@
-const Blockchain = require('./blockchain');
+const Blockchain = require('./chain/blockchain');
 const ApiServer = require('./api');
 const PeerServer = require('./p2p');
 
@@ -9,7 +9,7 @@ const wallet = new Wallet(100);
 const pool = new TransactionPool();
 
 const chain = new Blockchain();
-const p2p = new PeerServer(chain, pool, wallet);
+const p2p = new PeerServer(chain, pool);
 const api = new ApiServer(chain, p2p, pool, wallet);
 
 p2p.start();

@@ -5,25 +5,25 @@ const uuid = require('uuid/v1');
 
 class Utils
 {
-	static hash(data)
-	{
-		return SHA256(data).toString();
-	}
+    static hash(data)
+    {
+        return SHA256(data).toString();
+    }
 
-	static verify(pub, sig, hash)
-	{
-		return ec.keyFromPublic(pub, 'hex').verify(hash, sig);
-	}
+    static verify(pub, sig, hash)
+    {
+        return ec.keyFromPublic(pub, 'hex').verify(hash, sig);
+    }
 
-	static genKeys()
-	{
-		return ec.genKeyPair();
-	}
+    static genKeys()
+    {
+        return ec.genKeyPair();
+    }
 
-	static id()
-	{
-		return uuid();
-	}
+    static id()
+    {
+        return uuid();
+    }
 }
 
 module.exports = Utils;
