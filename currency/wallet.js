@@ -18,17 +18,17 @@ class Wallet
         return this.keyPair.sign(hash);
     }
 
-    createTransaction(recipient, amount, pool)
+    createTransaction(recipient, amount, reference, pool)
     {
         let transaction = pool.find(this.publicKey);
 
         if (transaction)
         {
-            transaction.update(this, recipient, amount);
+            transaction.update(this, recipient, amount, reference);
         }
         else
         {
-            transaction = Transaction.create(this, recipient, amount);
+            transaction = Transaction.create(this, recipient, amount, reference);
             pool.add(transaction);
         }
 
@@ -74,9 +74,52 @@ class Wallet
         return balance;
     }
 
+    static history(wallet, chain)
+    {
+        const hist = [];
+
+        for (let b = 0; b < chain.blocks.length; b++)
+        {
+            const block = chain.blocks[b];
+
+            for (let t = 0; t < block.data.length; t++)
+            {
+                const transaction = block.data[t];
+                const input = transaction.input;
+
+                if (input.address === wallet.publicKey)
+                {
+                    for (let o = 0; o < transaction.output.length; o++)
+                    {
+                        const output = transaction.output[o];
+
+                        if (output.address !== wallet.publicKey)
+                        {
+                            hist.push({ date: new Date(input.timestamp), address: output.address, amount: -output.amount, reference: output.reference });
+                        }
+                    }
+                }
+                else
+                {
+                    for (let o = 0; o < transaction.output.length; o++)
+                    {
+                        const output = transaction.output[o];
+
+                        if (output.address === wallet.publicKey)
+                        {
+                            hist.push({ date: new Date(input.timestamp), address: output.address, amount: output.amount, reference: output.reference });
+                        }
+                    }
+                }
+            }
+        }
+
+        return hist.reverse();
+    }
+
     static system()
     {
-        const wallet = new this(100);
+        const wallet = new this();
         wallet.address = 'blockchain-wallet';
         return wallet;
     }

@@ -10,7 +10,7 @@ class Transaction
         this.output = [];
     }
 
-    update(sender, recipient, amount)
+    update(sender, recipient, amount, reference)
     {
         const out = this.output.find(o => o.address === sender.publicKey);
 
@@ -22,14 +22,14 @@ class Transaction
 
         out.amount -= amount;
 
-        this.output.push({ amount, address: recipient});
+        this.output.push({ amount, address: recipient, reference: reference });
 
         Transaction.sign(this, sender);
 
         return this;
     }
 
-    static create(sender, recipient, amount)
+    static create(sender, recipient, amount, reference)
     {
         let transaction;
 
@@ -56,7 +56,8 @@ class Transaction
             },
             {
                 amount: amount,
-                address: recipient
+                address: recipient,
+                reference: reference
             }
         ]);
 
@@ -72,7 +73,8 @@ class Transaction
         transaction.output.push(
         {
             amount: REWARD,
-            address: minerWallet.publicKey
+            address: minerWallet.publicKey,
+            reference: 'mining reward'
         });
 
         Transaction.sign(transaction, systemWallet);

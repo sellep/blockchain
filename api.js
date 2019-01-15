@@ -20,7 +20,7 @@ class ApiServer
 
         this.app.get('/wallet', (req, res) =>
         {
-            res.json({ creation: new Date(wallet.timestamp), address: wallet.publicKey, balance: Wallet.balance(wallet, chain) });
+            res.json({ creation: new Date(wallet.timestamp), address: wallet.publicKey, balance: Wallet.balance(wallet, chain), history: Wallet.history(wallet, chain) });
         });
 
         this.app.get('/blocks', (req, res) =>
@@ -53,7 +53,7 @@ class ApiServer
 
         this.app.post('/transact', (req, res) =>
         {
-            const transaction = wallet.createTransaction(req.body.recipient, req.body.amount, pool);
+            const transaction = wallet.createTransaction(req.body.recipient, req.body.amount, req.body.reference, pool);
 
             p2p.broadcastTransaction(transaction);
 
