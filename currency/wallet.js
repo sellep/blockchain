@@ -18,8 +18,10 @@ class Wallet
         return this.keyPair.sign(hash);
     }
 
-    createTransaction(recipient, amount, reference, pool)
+    createTransaction(chain, pool, recipient, amount, reference)
     {
+        this.balance = Wallet.balance(this, chain);
+
         let transaction = pool.find(this.publicKey);
 
         if (transaction)

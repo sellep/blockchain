@@ -33,7 +33,7 @@ class ApiServer
             res.json(pool.transactions);
         });
 
-        this.app.get('/mine-transactions', (req, res) =>
+        this.app.get('/mine', (req, res) =>
         {
             const block = Miner.mine(p2p, chain, pool, wallet);
 
@@ -42,18 +42,9 @@ class ApiServer
             res.redirect('/blocks');
         });
 
-        this.app.post('/mine', (req, res) =>
-        {
-            chain.add(req.body.data);
-
-            p2p.broadcastChain();
-
-            res.redirect('/blocks');
-        });
-
         this.app.post('/transact', (req, res) =>
         {
-            const transaction = wallet.createTransaction(req.body.recipient, req.body.amount, req.body.reference, pool);
+            const transaction = wallet.createTransaction(chain, pool, req.body.recipient, req.body.amount, req.body.reference);
 
             p2p.broadcastTransaction(transaction);
 
