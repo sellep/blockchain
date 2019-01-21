@@ -1,5 +1,5 @@
 const Block = require('../chain/block');
-const { DIFFICULTY } = require('../config');
+const Config = require('../config');
 
 describe('Block', () =>
 {
@@ -29,7 +29,7 @@ describe('Block', () =>
 
     it('generates a hash, which fits the difficulty', () =>
     {
-        expect(block.hash.substr(0, DIFFICULTY)).toEqual('0'.repeat(DIFFICULTY));
+        expect(block.hash.substr(0, Config.difficulty())).toEqual('0'.repeat(Config.difficulty()));
     });
 
     it('decrements difficulty when slowly mined', () =>

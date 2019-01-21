@@ -1,11 +1,12 @@
 const Block = require('./block');
+const Config = require('../config');
 
 class Blockchain
 {
 
     constructor()
     {
-        this.blocks = [Block.genesis()];
+        this.blocks = [ Block.genesis() ];
     }
 
     add(data)

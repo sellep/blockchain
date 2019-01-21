@@ -1,10 +1,7 @@
 const express = require('express');
 const parser = require('body-parser');
-const Blockchain = require('./chain/blockchain');
-const PeerServer = require('./p2p');
 const Miner = require('./miner');
 const Wallet = require('./currency/wallet');
-const TransactionPool = require('./currency/pool');
 require('./extensions');
 
 const HTTP_PORT = process.env.HTTP_PORT || 8081;
@@ -20,10 +17,17 @@ class ApiServer
 
         this.app.get('/wallet', (req, res) =>
         {
-            res.json({ creation: new Date(wallet.timestamp), address: wallet.publicKey, balance: Wallet.balance(wallet, chain), history: Wallet.history(wallet, chain) });
+            if (wallet)
+            {
+                res.json({ creation: new Date(wallet.timestamp), address: wallet.publicKey, balance: Wallet.balance(wallet, chain), history: Wallet.history(wallet, chain) });
+            }
+            else
+            {
+                res.json('no wallet');
+            } 
         });
 
-        this.app.get('/blocks', (req, res) =>
+        this.app.get('/blockchain', (req, res) =>
         {
             res.json(chain.blocks);
         });
@@ -35,20 +39,41 @@ class ApiServer
 
         this.app.get('/mine', (req, res) =>
         {
-            const block = Miner.mine(p2p, chain, pool, wallet);
+            if (wallet)
+            {
+                const block = Miner.mine(p2p, chain, pool, wallet);
 
-            console.log('[API] new block added');
-
-            res.redirect('/blocks');
+                console.log('[API] new block added');
+    
+                res.redirect('/blockchain');
+            }
+            else
+            {
+                res.json('no wallet');
+            }            
         });
 
         this.app.post('/transact', (req, res) =>
         {
-            const transaction = wallet.createTransaction(chain, pool, req.body.recipient, req.body.amount, req.body.reference);
+            if (wallet)
+            {
+                const transaction = wallet.createTransaction(chain, pool, req.body.recipient, req.body.amount, req.body.reference);
 
-            p2p.broadcastTransaction(transaction);
+                p2p.broadcastTransaction(transaction);
+    
+                res.redirect('/transactions');
+            }
+            else
+            {
+                res.json('no wallet');
+            } 
+        });
 
-            res.redirect('/transactions');
+        this.app.post('/connect', (req, res) =>
+        {
+            const { peer } = req.body;
+            p2p.connect(peer);
+            res.json("welcome to the blockchain network");
         });
     }
 

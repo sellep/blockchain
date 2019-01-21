@@ -3,15 +3,17 @@ const Block = require('./chain/block');
 const Blockchain = require('./chain/blockchain');
 const Transaction = require('./currency/transaction');
 const TransactionPool = require('./currency/pool');
+const Config = require('./config')
 
 const P2P_PORT = process.env.P2P_PORT || 5001;
-const peers = process.env.PEERS ? process.env.PEERS.split(',') : [];
 
 const MESSAGE_TYPE =
 {
     chain: 'CHAIN',
     tran: 'TRANSACTION',
-    tran_clear: 'TRANSACTION_CLEAR'
+    tran_clear: 'TRANSACTION_CLEAR',
+    nodes: 'NODES',
+    debug: 'DEBUG'
 };
 
 class PeerServer
@@ -27,23 +29,28 @@ class PeerServer
     start()
     {
         const server = new WebSocket.Server({ port: P2P_PORT });
-        server.on('connection', socket => this.connectSocket(socket));
 
-        this.connectToPeers();
+        server.on('connection', socket => this.handleConnection(socket));
 
         console.log(`[P2P] listening for on ${P2P_PORT}`);
     }
-
-    connectToPeers()
+    
+    handleConnection(socket)
     {
-        peers.forEach(peer =>
-        {
-            const socket = new WebSocket(peer);
+        console.log(`[P2P] incoming node, send chain`);
 
-            socket.on('open', () =>
-            {
-                this.connectSocket(socket);
-            });
+        this.connectSocket(socket);
+
+        sendBlockchain(socket, this.chain);
+    }
+
+    connect(peer)
+    {
+        const socket = new WebSocket(peer);
+
+        socket.on('open', () =>
+        {
+            this.connectSocket(socket);
         });
     }
 
@@ -66,12 +73,11 @@ class PeerServer
                 case MESSAGE_TYPE.tran_clear:
                     this.handleTransactionClear(message.data);
                     break;
+                case MESSAGE_TYPE.debug:
+                    console.log(`[P2P] [DEBUG] ${data}`);
+                    break;
             }
         });
-
-        this.broadcastChain();
-
-        console.log('[P2P] socket connected');
     }
 
     handleChain(chain)
@@ -106,28 +112,38 @@ class PeerServer
 
     broadcastChain()
     {
-        this.broadcast(MESSAGE_TYPE.chain, this.chain.blocks);
+        broadcast(this.sockets, MESSAGE_TYPE.chain, this.chain.blocks);
     }
 
     broadcastTransaction(transaction)
     {
-        this.broadcast(MESSAGE_TYPE.tran, transaction);
+        broadcast(this.sockets, MESSAGE_TYPE.tran, transaction);
     }
 
     broadcastTransactionClear()
     {
-        this.broadcast(MESSAGE_TYPE.tran_clear);
-    }
+        broadcast(this.sockets, MESSAGE_TYPE.tran_clear);
+    }   
+}
 
-    broadcast(type, data)
-    {
-        this.sockets.forEach(socket => this.sendTo(socket, JSON.stringify({ type: type, data: data })));
-    }
+function sendBlockchain(socket, chain)
+{
+    sendTo(socket, JSON.stringify({ type: MESSAGE_TYPE.chain, data: chain.blocks }));
+}
 
-    sendTo(socket, data)
+function broadcast(sockets, type, data)
+{
+    const json = JSON.stringify({ type: type, data: data });
+
+    for (let i = 0; i < sockets.length; i++)
     {
-        socket.send(data);
+        sendTo(sockets[i], json);
     }
+}
+
+function sendTo(socket, data)
+{
+    socket.send(data);
 }
 
 module.exports = PeerServer;

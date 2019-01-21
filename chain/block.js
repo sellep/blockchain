@@ -1,5 +1,5 @@
 const Utils = require('../utils');
-const { DIFFICULTY, MINE_RATE } = require('../config');
+const Config = require('../config');
 require('../extensions');
 
 class Block
@@ -35,7 +35,7 @@ class Block
     static genesis()
     {
         const data = [];
-        const prev = { timestamp: 0, hash: '', difficulty: DIFFICULTY };
+        const prev = { timestamp: 0, hash: '', difficulty: Config.difficulty() };
 
         return Block.mine(prev, data);
     }
@@ -70,7 +70,7 @@ class Block
     {
         const { difficulty } = prevBlock;
 
-        return prevBlock.timestamp + MINE_RATE > timestamp
+        return prevBlock.timestamp + Config.rate() > timestamp
             ? difficulty + 1
             : difficulty > 1
                 ? difficulty - 1

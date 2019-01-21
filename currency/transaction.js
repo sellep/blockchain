@@ -1,5 +1,5 @@
 const Utils = require('../utils');
-const { REWARD } = require('../config');
+const Config= require('../config');
 
 class Transaction
 {
@@ -72,7 +72,7 @@ class Transaction
 
         transaction.output.push(
         {
-            amount: REWARD,
+            amount: Config.reward(),
             address: minerWallet.publicKey,
             reference: 'mining reward'
         });
